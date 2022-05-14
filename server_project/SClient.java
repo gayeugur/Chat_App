@@ -3,21 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package server_project;
+package server;
 
+import message.Message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import message.Message;
-import static server_project.Server.Clients;
-
+import static server.Server.Clients;
 
 /**
  *
- * @author busra
+ * @author 
  */
 public class SClient {
 
@@ -154,7 +153,7 @@ public class SClient {
             String[] parts = msg.content.toString().split("-");
             String kisi_adi = parts[0];
             String geri_kalan = parts[1];
-            msg.content = geri_kalan;
+            msg.content = msg.content.toString();
 
             //secili kisiye yeni jframe olusturmak icin
             for (SClient c : Clients) {
