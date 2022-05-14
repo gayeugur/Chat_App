@@ -3,30 +3,31 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client_project;
+package client;
 
-import static client_project.Client.sInput;
-import java.io.File;
-import java.io.FileOutputStream;
+/**
+ *
+ * @author 
+ */
+import static client.Client.sInput;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import message.Message;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Base64;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
-import message.Message;
 import message.anasayfa;
-import message.arayuz;
-import message.grupOlustur;
-import message.sohbet;
-import static message.sohbet.ThisSohbet;
+import static message.Room.ThisSohbet;
 
 /**
  *
- * @author gayeu
+ * @author busra
  */
 class Listen extends Thread {
 
@@ -41,12 +42,11 @@ class Listen extends Thread {
                 switch (received.type) {
                     case Connected:
                         //cevrimici kullanicilar listesini alir ve anasayfada gunceller
-                        arayuz.ThisArayuz.online_users.setModel((DefaultListModel) received.content);
-                        Thread.sleep(200);
+                        anasayfa.ThisAnasayfa.list_users.setModel((DefaultListModel) received.content);
                         break;
 
                     case Name:
-                        //Client'ın name bilgisini alir
+                        //Client'ın name bilgisini alir     
                         Client.client_name = received.content.toString();
                         break;
 
@@ -59,8 +59,8 @@ class Listen extends Thread {
                         mesajakisi = parts[1];
                         Thread.sleep(100);
                         message.anasayfa.ThisAnasayfa.setVisible(false);
-                        new message.sohbet(mesajlasilan).setVisible(true);
-                        message.sohbet.ThisSohbet.mesaj_akisi.setText(mesajakisi);
+                        new message.Room(mesajlasilan).setVisible(true);
+                        message.Room.ThisSohbet.list_mess.setText(mesajakisi);
                         break;
 
                     case icerik2:
@@ -70,8 +70,8 @@ class Listen extends Thread {
                         String[] parts2 = received.content.toString().split("_");
                         mesajakisi2 = parts2[1];
                         Thread.sleep(100);
-                        message.sohbet.ThisSohbet.setVisible(true);
-                        message.sohbet.ThisSohbet.mesaj_akisi.setText(mesajakisi2);
+                        message.Room.ThisSohbet.setVisible(true);
+                        message.Room.ThisSohbet.list_mess.setText(mesajakisi2);
                         break;
 //
 //                    case durum:
@@ -82,14 +82,13 @@ class Listen extends Thread {
                         //karsi client sohbet kutusunu kapatirsa burada da mesajlasma sonlandirilir 
                         ThisSohbet.setVisible(false);
                         anasayfa.ThisAnasayfa.setVisible(true);
-                        sohbet.durum = false;
                         Thread.sleep(100);
                         break;
 
                     case grupUsers:
                         //gruptaki kisiler bilgisi gonderilir grup uyelerine
                         Thread.sleep(100);
-                        grupOlustur.ThisGrupOlustur.users.setModel((DefaultListModel) received.content);
+                     //   grupOlustur.ThisGrupOlustur.users.setModel((DefaultListModel) received.content);
                         break;
 
                     case grupKisiBul:
@@ -97,20 +96,29 @@ class Listen extends Thread {
                         if (message.anasayfa.ThisAnasayfa.isVisible()) {
                             message.anasayfa.ThisAnasayfa.setVisible(false);
                         }
-                        new message.GrupSohbet(received.content.toString(), 1).setVisible(true);
+                        new message.GrupOlusturs(received.content.toString(), 1).setVisible(true);
                         break;
 
                     case kisiBul:
                         //bireysel mesajlasmada biri sohbeti baslatinca digerinin de sayfasinda o sohbet penceresi acilir
                         if (message.anasayfa.ThisAnasayfa.isVisible()) {
                             message.anasayfa.ThisAnasayfa.setVisible(false);
-                        }
-                        new message.sohbet(received.content.toString(), 1).setVisible(true);
+                        }      
+                        String[] dizi = received.content.toString().split("-");
+                        String kisi_ad = dizi[0];
+                        String kisi_ad2 = dizi[1];
+                        System.out.println("ikinic" + kisi_ad2);     
+                        
+                        new message.Room(kisi_ad2,kisi_ad2).setVisible(true);
                         break;
+                        
+             
+
+                        
 
                     case icerikGrup:
                         //gruptaki mesaj iceriklerini gunceller
-                        message.GrupSohbet.ThisGrupSohbet.grup_mesaj_akisi.setText(received.content.toString());
+                        message.GrupOlusturs.ThisGrupSohbet.grup_mesaj_akisi.setText(received.content.toString());
                         break;
 
                     case dosya1:
@@ -171,7 +179,7 @@ public class Client {
 
             //ilk mesaj olarak isim gönderiyorum
             Message msg = new Message(Message.Message_Type.Name);
-            msg.content = arayuz.ThisArayuz.txt_name.getText();
+            msg.content = message.anasayfa.ThisAnasayfa.txt_name.getText();
             Client.Send(msg);
 
         } catch (IOException ex) {
@@ -207,5 +215,3 @@ public class Client {
         }
     }
 }
-
-
