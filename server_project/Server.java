@@ -3,23 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package server;
 
-package server_project;
-
+import message.Message;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import message.Message;
 
 /**
  *
- * @author gayeu
+ * @author 
  */
-
 class ServerThread extends Thread {
 
     public void run() {
@@ -84,7 +83,7 @@ public class Server {
         try {
             cl.sOutput.writeObject(msg);
         } catch (IOException ex) {
-            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SClient.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
