@@ -5,15 +5,22 @@
  */
 package message;
 
-import java.awt.Dimension;
+import client.Client;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import static message.Group.kisiler;
 
 /**
  *
- * @author 
+ * @author gayeu
  */
 public class Room extends javax.swing.JFrame {
 
@@ -22,27 +29,21 @@ public class Room extends javax.swing.JFrame {
      */
     public static Room ThisSohbet;
     public DefaultListModel kisi;
+    public static File fileToSend = null;
 
     public Room() {
         initComponents();
         ThisSohbet = this;
-
+        lbl_name.setText(client.Client.kisi_ad2);
     }
 
-    public Room(String s) throws InterruptedException {
+    public Room(String kisi) throws InterruptedException {
         initComponents();
         ThisSohbet = this;
-        String kisi = s;
         lbl_name.setText(kisi.toString());
         Message msg = new Message(Message.Message_Type.kisiBul);
         msg.content = kisi.toString() + "-" + client.Client.client_name;
         client.Client.Send(msg);
-    }
-
-    public Room(String s, String i) throws InterruptedException {
-        initComponents();
-        ThisSohbet = this;
-        lbl_name.setText(s);
     }
 
     /**
@@ -59,6 +60,8 @@ public class Room extends javax.swing.JFrame {
         btn_send = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         list_mess = new javax.swing.JTextArea();
+        btn_back = new javax.swing.JButton();
+        btn_dosya = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(450, 640));
@@ -70,6 +73,11 @@ public class Room extends javax.swing.JFrame {
         lbl_name.setOpaque(true);
 
         txt_mess.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 102, 255)));
+        txt_mess.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txt_messKeyReleased(evt);
+            }
+        });
 
         btn_send.setBackground(new java.awt.Color(255, 255, 255));
         btn_send.setText("Send");
@@ -87,6 +95,20 @@ public class Room extends javax.swing.JFrame {
         list_mess.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 102, 255)));
         jScrollPane1.setViewportView(list_mess);
 
+        btn_back.setText("Back");
+        btn_back.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_backActionPerformed(evt);
+            }
+        });
+
+        btn_dosya.setText("File");
+        btn_dosya.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_dosyaActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -94,48 +116,121 @@ public class Room extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(5, 5, 5)
-                        .addComponent(txt_mess, javax.swing.GroupLayout.PREFERRED_SIZE, 355, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(btn_dosya, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txt_mess, javax.swing.GroupLayout.PREFERRED_SIZE, 301, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btn_send, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 464, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 19, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lbl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(btn_back, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lbl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(lbl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lbl_name, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btn_back, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_mess, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn_send, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txt_mess, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(213, 213, 213))
+                    .addComponent(btn_dosya, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>                        
 
     private void btn_sendActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        if (fileToSend == null) {
+            list_mess.setText(list_mess.getText() + client.Client.client_name + ":\n" + txt_mess.getText().toString());
 
-        list_mess.setText(list_mess.getText() + client.Client.client_name + ":\n" + txt_mess.getText().toString());
+            Message msg = new Message(Message.Message_Type.icerik2);
+            msg.content = lbl_name.getText().toString() + "_" + list_mess.getText();
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            client.Client.Send(msg);
+            txt_mess.setText("");
+        } else if (fileToSend != null) {
 
-        Message msg = new Message(Message.Message_Type.icerik2);
-        msg.content = lbl_name.getText().toString() + "_" + list_mess.getText();
-        try {
-            Thread.sleep(300);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
+            //dosya gonderildi bilgisini mesaj akisina ekler dosya adiyla
+            //dosyayi karsiya gonderir
+           String icerik = client.Client.client_name + ":\n" + "--- Dosya : " + fileToSend.getName() + " ---\n" + list_mess.getText().toString() + "\n";
+            list_mess.setText(list_mess.getText() + icerik);
+              
+           
+            Message msg = new Message(Message.Message_Type.icerikGrup);
+            msg.content = lbl_name.getText().toString() + "_" + list_mess.getText();
+            txt_mess.setText("");
+            client.Client.Send(msg);
+
+            FileInputStream fileInputStream;
+            try {
+                fileInputStream = new FileInputStream(fileToSend);
+                String fileName = fileToSend.getName();
+                byte[] fileContentBytes = new byte[fileInputStream.available()];
+                fileInputStream.read(fileContentBytes);
+                fileInputStream.close();
+                fileToSend = null;
+                String fileContentBytes_string = Base64.getEncoder().encodeToString(fileContentBytes);
+                Message msg4 = new Message(Message.Message_Type.dosya1);
+                msg4.content = lbl_name.getText().toString() + "&" + fileName + "_" + fileContentBytes_string;
+                client.Client.Send(msg4);
+                Thread.sleep(300);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Room.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
         }
-        client.Client.Send(msg);
-        txt_mess.setText("");
+
+
     }                                        
+
+    private void txt_messKeyReleased(java.awt.event.KeyEvent evt) {                                     
+        // TODO add your handling code here:
+
+    }                                    
+
+    private void btn_backActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        // TODO add your handling code here:
+        ThisSohbet.setVisible(false);
+        anasayfa.ThisAnasayfa.setVisible(true);
+
+        Message msg = new Message(Message.Message_Type.baglantiKopar);
+        msg.content = lbl_name.getText().toString();
+        client.Client.Send(msg);
+    }                                        
+
+    private void btn_dosyaActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+        //dosya cubugunu acar ve gondermek istenilen dosyayi secmeye yarar
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Choose the file");
+        int choose_File = fileChooser.showOpenDialog(this);
+
+        if (choose_File == JFileChooser.APPROVE_OPTION) {
+            fileToSend = fileChooser.getSelectedFile();
+
+        } else {
+            JOptionPane.showMessageDialog(fileChooser, "Try again");
+        }
+    }                                         
 
     /**
      * @param args the command line arguments
@@ -173,6 +268,8 @@ public class Room extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify                     
+    private javax.swing.JButton btn_back;
+    private javax.swing.JButton btn_dosya;
     private javax.swing.JButton btn_send;
     private javax.swing.JScrollPane jScrollPane1;
     public javax.swing.JLabel lbl_name;
