@@ -6,24 +6,24 @@
 package message;
 
 import client.Client;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 
 /**
  *
- * @author 
+ * @author
  */
 public class anasayfa extends javax.swing.JFrame {
 
     /**
      * Creates new form anasayfa
      */
-    //framedeki komponentlere erişim için statik oyun değişkeni
     public static anasayfa ThisAnasayfa;
-    //cevrimici kullanicilari tutmak icin
     public DefaultListModel users;
-    public static String user1, user2;
+    public static String user1, user2, groupName;
+    public static Object groupUsers;
 
     public anasayfa() {
         initComponents();
@@ -137,13 +137,12 @@ public class anasayfa extends javax.swing.JFrame {
 
     private void btn_private_mssActionPerformed(java.awt.event.ActionEvent evt) {                                                
 
-        String kisi = list_users.getSelectedValue().toString();
         user1 = txt_name.getText();
-        user2 = kisi;
+        user2 = list_users.getSelectedValue().toString();
         ThisAnasayfa.setVisible(false);
 
         try {
-            Room sohbets = new Room(kisi);
+            Room sohbets = new Room(user2);
             sohbets.setVisible(true);
         } catch (InterruptedException ex) {
             Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
@@ -154,19 +153,23 @@ public class anasayfa extends javax.swing.JFrame {
 
     private void btn_create_roomActionPerformed(java.awt.event.ActionEvent evt) {                                                
 
+//        ThisAnasayfa.setVisible(false);
+//        String message = txt_room_name.getText().toString() + "_";
+//        if (list_users.getSelectedIndex() != -1) {
+//            for (Object item : list_users.getSelectedValuesList()) {
+//                message += item + "-";
+//            }
+//        }
+
+        groupName = txt_room_name.getText();
+        groupUsers = list_users.getSelectedValuesList().toString();
         ThisAnasayfa.setVisible(false);
-        String txt = txt_room_name.getText().toString() + "-";
-        if (list_users.getSelectedIndex() != -1) {
-            for (Object item : list_users.getSelectedValuesList()) {
-                txt += item + "-";
-            }
-        }
 
         try {
-            Thread.sleep(500);
-            GrupOlusturs room = new GrupOlusturs(txt);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
+            Group grup = new Group(groupName, (String) groupUsers);
+            grup.setVisible(true);
+        } catch (Exception e) {
+
         }
     }                                               
 
@@ -178,7 +181,7 @@ public class anasayfa extends javax.swing.JFrame {
         // TODO add your handling code here:
 
         Client.Start("localhost", 7000);
-        String user1_name = txt_name.getText();
+        user1 = txt_name.getText();
         //  txt_name.setText("Your Name :" + txt_name.getText());
         txt_name.setEnabled(false);
         btn_connect.setEnabled(false);
