@@ -5,76 +5,67 @@
  */
 package message;
 
-import java.awt.Dimension;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author busra
  */
-public class GrupOlusturs extends javax.swing.JFrame {
+public class Group extends javax.swing.JFrame {
 
     /**
      * Creates new form GrupSohbet
      *
      */
-    public static GrupOlusturs ThisGrupSohbet;
+    public static Group ThisGrupSohbet;
     public DefaultListModel kisilerListesi;
-    public static boolean durum;
     public static String grup_adi;
     public static String kisiler;
     public static File fileToSend = null;
 
-    public GrupOlusturs() {
+    public Group() {
         initComponents();
         ThisGrupSohbet = this;
-        ThisGrupSohbet.setPreferredSize(new Dimension(450, 640));
-        durum = false;
-        grup_mesaj_akisi.setEditable(true);
+        lbl_grupName.setText(anasayfa.groupName);
     }
 
-    public GrupOlusturs(String s) throws InterruptedException {
+    public Group(String s) {
         initComponents();
         ThisGrupSohbet = this;
-        ThisGrupSohbet.setPreferredSize(new Dimension(450, 640));
-        durum = false;
-        grup_mesaj_akisi.setEditable(true);
-        Thread.sleep(500);
+        //   grup_mesaj_akisi.setEditable(true);
+        lbl_grupName.setText(anasayfa.groupName);
 
-        String[] parts = s.split("-");
-        grup_adi = parts[0];
-        kisiler = parts[1];
-        Thread.sleep(100);
-        ThisGrupSohbet.grup_adi_.setText(grup_adi);
-
-        Message msg = new Message(Message.Message_Type.grupKisiBul);
-        msg.content = grup_adi + "_" + kisiler;
-        Thread.sleep(100);
-        client.Client.Send(msg);
+//
+       
+//        Thread.sleep(100);
+//        ThisGrupSohbet.grup_adi_.setText(grup_adi);
+//
+//        Message msg = new Message(Message.Message_Type.grupKisiBul);
+//        msg.content = grup_adi + "_" + kisiler;
+//        Thread.sleep(100);
+//        client.Client.Send(msg);
     }
 
-    public GrupOlusturs(String s, int i) throws InterruptedException {
+    public Group(String grup_ad, String kisi) throws InterruptedException {
         initComponents();
         ThisGrupSohbet = this;
-        ThisGrupSohbet.setPreferredSize(new Dimension(450, 640));
-        durum = false;
-        grup_mesaj_akisi.setEditable(true);
-        Thread.sleep(500);
+        System.out.println("group çalıtı");
+        ThisGrupSohbet.lbl_grupName.setText(anasayfa.groupName);
+//        Message msg = new Message(Message.Message_Type.grupKisiBul);
+//        msg.content = grup_adi + "-" + kisiler;
+//        Thread.sleep(100);
+//        client.Client.Send(msg);
 
-        String[] parts3 = s.split("_");
-        grup_adi = parts3[0];
-        kisiler = parts3[1];
-        ThisGrupSohbet.grup_adi_.setText(grup_adi);
         Thread.sleep(100);
     }
 
@@ -87,28 +78,21 @@ public class GrupOlusturs extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
 
-        grup_adi_ = new javax.swing.JLabel();
         grup_mesaj_kutusu = new javax.swing.JTextField();
         btn_mesaj_gonder_grup = new javax.swing.JButton();
-        dosya = new javax.swing.JButton();
+        btn_dosya = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         grup_mesaj_akisi = new javax.swing.JTextPane();
+        lbl_grupName = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(450, 640));
         getContentPane().setLayout(null);
 
-        grup_adi_.setBackground(new java.awt.Color(0, 102, 255));
-        grup_adi_.setFont(new java.awt.Font("Comic Sans MS", 3, 18)); // NOI18N
-        grup_adi_.setForeground(new java.awt.Color(255, 255, 255));
-        grup_adi_.setOpaque(true);
-        getContentPane().add(grup_adi_);
-        grup_adi_.setBounds(80, 0, 360, 80);
-
         grup_mesaj_kutusu.setFont(new java.awt.Font("Courier New", 0, 14)); // NOI18N
         grup_mesaj_kutusu.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 153, 255)));
         getContentPane().add(grup_mesaj_kutusu);
-        grup_mesaj_kutusu.setBounds(50, 500, 320, 80);
+        grup_mesaj_kutusu.setBounds(70, 410, 310, 60);
 
         btn_mesaj_gonder_grup.setText("Send");
         btn_mesaj_gonder_grup.addActionListener(new java.awt.event.ActionListener() {
@@ -117,23 +101,25 @@ public class GrupOlusturs extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btn_mesaj_gonder_grup);
-        btn_mesaj_gonder_grup.setBounds(370, 500, 60, 80);
+        btn_mesaj_gonder_grup.setBounds(380, 410, 70, 60);
 
-        dosya.setIcon(new javax.swing.ImageIcon(getClass().getResource("/message/file.png"))); // NOI18N
-        dosya.addActionListener(new java.awt.event.ActionListener() {
+        btn_dosya.setText("File");
+        btn_dosya.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                dosyaActionPerformed(evt);
+                btn_dosyaActionPerformed(evt);
             }
         });
-        getContentPane().add(dosya);
-        dosya.setBounds(0, 500, 50, 80);
+        getContentPane().add(btn_dosya);
+        btn_dosya.setBounds(10, 410, 60, 60);
 
         grup_mesaj_akisi.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
         grup_mesaj_akisi.setFont(new java.awt.Font("Courier New", 0, 14)); // NOI18N
         jScrollPane2.setViewportView(grup_mesaj_akisi);
 
         getContentPane().add(jScrollPane2);
-        jScrollPane2.setBounds(0, 80, 430, 420);
+        jScrollPane2.setBounds(10, 60, 440, 340);
+        getContentPane().add(lbl_grupName);
+        lbl_grupName.setBounds(70, 20, 250, 40);
 
         pack();
     }// </editor-fold>                        
@@ -154,7 +140,7 @@ public class GrupOlusturs extends javax.swing.JFrame {
             try {
                 Thread.sleep(300);
             } catch (InterruptedException ex) {
-                Logger.getLogger(GrupOlusturs.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
             }
             client.Client.Send(msg);
             //dosya gonderme durumu varsa
@@ -174,7 +160,7 @@ public class GrupOlusturs extends javax.swing.JFrame {
                 try {
                     Thread.sleep(300);
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(GrupOlusturs.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 client.Client.Send(msg);
 
@@ -191,32 +177,29 @@ public class GrupOlusturs extends javax.swing.JFrame {
                 client.Client.Send(msg4);
                 Thread.sleep(300);
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(GrupOlusturs.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
-                Logger.getLogger(GrupOlusturs.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
             } catch (InterruptedException ex) {
-                Logger.getLogger(GrupOlusturs.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }                                                     
 
-    private void dosyaActionPerformed(java.awt.event.ActionEvent evt) {                                      
+    private void btn_dosyaActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
         //dosya cubugunu acar ve gondermek istenilen dosyayi secmeye yarar
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Dosya seç");
-        fileChooser.setCurrentDirectory(new File("C:\\Users\\busra\\Desktop\\ağlar_proje_2\\dosya_gonderme"));
-        int secim = fileChooser.showOpenDialog(this);
+        fileChooser.setDialogTitle("Choose the file");
+        int choose_File = fileChooser.showOpenDialog(this);
 
-        if (secim == JFileChooser.APPROVE_OPTION) {
+        if (choose_File == JFileChooser.APPROVE_OPTION) {
             fileToSend = fileChooser.getSelectedFile();
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(GrupOlusturs.class.getName()).log(Level.SEVERE, null, ex);
-            }
+
+        }else{
+            JOptionPane.showMessageDialog(fileChooser, "Try again");
         }
-    }                                     
+    }                                         
 
     /**
      * @param args the command line arguments
@@ -235,30 +218,30 @@ public class GrupOlusturs extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(GrupOlusturs.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Group.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(GrupOlusturs.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Group.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(GrupOlusturs.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Group.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(GrupOlusturs.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Group.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new GrupOlusturs().setVisible(true);
+                new Group().setVisible(true);
             }
         });
     }
 
     // Variables declaration - do not modify                     
+    private javax.swing.JButton btn_dosya;
     private javax.swing.JButton btn_mesaj_gonder_grup;
-    private javax.swing.JButton dosya;
-    public javax.swing.JLabel grup_adi_;
     public javax.swing.JTextPane grup_mesaj_akisi;
     private javax.swing.JTextField grup_mesaj_kutusu;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lbl_grupName;
     // End of variables declaration                   
 }
