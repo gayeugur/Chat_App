@@ -5,7 +5,7 @@
  */
 package server;
 
-import message.Message;
+import application.Message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,19 +16,17 @@ import static server.Server.Clients;
 
 /**
  *
- * @author 
+ * @author gayeu
  */
 public class SClient {
 
     int id;
-    public String name = "NoName";
+    public String name = "";
     Socket soket;
     ObjectOutputStream sOutput;
     ObjectInputStream sInput;
-    //clientten gelenleri dinleme threadi
     Listen listenThread;
-    //karsilikli mesajlasma icin eslestirme ve mesaj alisverisi threadi
-    PairingThread2 pairThread;
+
 
     public SClient(Socket gelenSoket, int id) {
         this.soket = gelenSoket;
@@ -43,7 +41,6 @@ public class SClient {
         this.listenThread = new Listen(this);
     }
 
-    //client mesaj gönderme
     public void Send(Message message) {
         try {
             this.sOutput.writeObject(message);
@@ -52,28 +49,22 @@ public class SClient {
         }
     }
 
-    //client dinleme threadi
-    //her clientin ayrı bir dinleme threadi var
+
     class Listen extends Thread {
 
         SClient TheClient;
         Message msg;
 
-        //thread nesne alması için yapıcı metod
         Listen(SClient TheClient) {
             this.TheClient = TheClient;
         }
 
         public void run() {
-            //client bağlı olduğu sürece dönsün
             while (TheClient.soket.isConnected()) {
-                try {
-                    //mesajı bekleyen kod satırı               
+                try {            
                     Message received = (Message) (TheClient.sInput.readObject());
-                    //mesaj gelirse bu satıra geçer
-                    //mesaj tipine göre işlemlere ayır
                     switch (received.type) {
-                        case Name:
+                        case UserName:
                             //kisinin isim bilgisini aldıktan sonra baglanti kurar
                             TheClient.name = received.content.toString();
                             Thread.sleep(500);
@@ -82,23 +73,35 @@ public class SClient {
                             Server.BaglantiKur(received);
                             break;
 
-                        case kisiBul:
-                            //karsilikli mesajlasilirken karsiki kisiyle konusmak icin thread baslatir
-                            TheClient.pairThread = new SClient.PairingThread2(received);
-                            pairThread.start();
+                        case ChatPrivate:
+                            String[] dizi = received.content.toString().split("-");
+                            String kisi_ad = dizi[0];
+                            String kisi_ad2 = dizi[1];
+                            received.content = received.content.toString();
+
+                            for (SClient c : Clients) {
+                                if (c.name.equals(kisi_ad)) {
+                                    Server.Send(c, received);
+
+                                }
+                            }
+
                             break;
 
-                        case grupKisiBul:
+                        case groupUsers:
                             //Secili kisilerle grup olusturur
                             Server.CreateGrup(received);
+
                             break;
 
-                        case icerik2:
+                        case Mess:
                             //karsi clienta mesaji iletir
-                            Server.KarsiyaGonder(received);
+                             Server.KarsiyaGonder(received);
+                            
+                    
                             break;
 
-                        case baglantiKopar:
+                        case Back:
                             //Clientlardan biri konusmadan ciktiktan sonra karsiki clienta bunun bilgisi gider 
                             //konusma sonlanir
                             SClient c = Server.ClientBul(received.content.toString());
@@ -106,24 +109,28 @@ public class SClient {
                             Thread.sleep(100);
                             break;
 
-                        case baglantiKopar2:
+                       // case NotConnect:
                             //clientlardan biri konusmadan cikinca o konusmayi takip eden threadi durdurur
-                            Thread.sleep(100);
-                            TheClient.pairThread.stop();
-                            break;
+                         //   Thread.sleep(100);
+                            // TheClient.pairThread.stop();
+                           // break;
 
-                        case grupUsers:
+                   //     case grupUsers:
                             //grup olusturmak icin online kullanicilar bilgisini tasir
-                            Server.BaglantiKur2(received);
-                            Thread.sleep(100);
-                            break;
+                     //       Server.BaglantiKur2(received);
+                      //      Thread.sleep(100);
+                       //     break;
 
-                        case icerikGrup:
+                        case GroupFileSender:
+                            //gruptaki tum uyelere mesaji iletir
+                            Server.tumUyelereGonder(received);
+                            break;
+                        case PrivateFileSender:
                             //gruptaki tum uyelere mesaji iletir
                             Server.tumUyelereGonder(received);
                             break;
 
-                        case dosya1:
+                        case File:
                             //gruptaki kullanicilara dosyayi gonderir
                             Server.dosyaGonder(received);
                             break;
@@ -134,36 +141,6 @@ public class SClient {
                     Logger.getLogger(SClient.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(SClient.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        }
-    }
-
-    class PairingThread2 extends Thread {
-
-        //karsilikli mesajlasmayi saglamak icin baslatilan thread
-        //her mesajlasma icin bir thread
-        Message msg;
-
-        PairingThread2(Message msg) {
-            this.msg = msg;
-        }
-
-        public void run() {
-            String[] parts = msg.content.toString().split("-");
-            String kisi_adi = parts[0];
-            String geri_kalan = parts[1];
-            msg.content = msg.content.toString();
-
-            //secili kisiye yeni jframe olusturmak icin
-            for (SClient c : Clients) {
-                if (c.name.equals(kisi_adi)) {
-                    Server.Send(c, msg);
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(SClient.class.getName()).log(Level.SEVERE, null, ex);
-                    }
                 }
             }
         }
