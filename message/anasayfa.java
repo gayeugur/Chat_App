@@ -3,33 +3,37 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package message;
+package application;
 
 import client.Client;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 
 /**
  *
- * @author
+ * @author gayeu
  */
 public class anasayfa extends javax.swing.JFrame {
 
     /**
      * Creates new form anasayfa
      */
-    public static anasayfa ThisAnasayfa;
+    public static anasayfa ThisAnasayfaPage;
     public DefaultListModel users;
-    public static String user1, user2, groupName;
-    public static Object groupUsers;
+    public static String user1, user2;
 
     public anasayfa() {
         initComponents();
-        ThisAnasayfa = this;
+        ThisAnasayfaPage = this;
         users = new DefaultListModel();
         list_users.setModel(users);
+        users.addElement("---   Online Users   ---");
+        btn_create_room.setEnabled(false);
+        btn_private_mss.setEnabled(false);
+        lbl_room_name.setEnabled(false);
+        txt_room_name.setEnabled(false);
+
     }
 
     /**
@@ -55,13 +59,19 @@ public class anasayfa extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
-        setMinimumSize(new java.awt.Dimension(450, 640));
+        setMinimumSize(new java.awt.Dimension(500, 650));
         getContentPane().setLayout(null);
 
         list_users.setBackground(new java.awt.Color(204, 204, 255));
         list_users.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
         list_users.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        list_users.setForeground(new java.awt.Color(0, 51, 153));
+        list_users.setForeground(new java.awt.Color(51, 51, 51));
+        list_users.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "---   Online Users   ---" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        list_users.setToolTipText("");
         jScrollPane1.setViewportView(list_users);
 
         getContentPane().add(jScrollPane1);
@@ -137,13 +147,11 @@ public class anasayfa extends javax.swing.JFrame {
 
     private void btn_private_mssActionPerformed(java.awt.event.ActionEvent evt) {                                                
 
-        user1 = txt_name.getText();
-        user2 = list_users.getSelectedValue().toString();
-        ThisAnasayfa.setVisible(false);
-
         try {
-            Room sohbets = new Room(user2);
-            sohbets.setVisible(true);
+            user2 = list_users.getSelectedValue();
+            ThisAnasayfaPage.setVisible(false);
+            Room proom = new Room(user2);
+            proom.setVisible(true);
         } catch (InterruptedException ex) {
             Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -153,23 +161,17 @@ public class anasayfa extends javax.swing.JFrame {
 
     private void btn_create_roomActionPerformed(java.awt.event.ActionEvent evt) {                                                
 
-//        ThisAnasayfa.setVisible(false);
-//        String message = txt_room_name.getText().toString() + "_";
-//        if (list_users.getSelectedIndex() != -1) {
-//            for (Object item : list_users.getSelectedValuesList()) {
-//                message += item + "-";
-//            }
-//        }
-
-        groupName = txt_room_name.getText();
-        groupUsers = list_users.getSelectedValuesList().toString();
-        ThisAnasayfa.setVisible(false);
-
         try {
-            Group grup = new Group(groupName, (String) groupUsers);
-            grup.setVisible(true);
-        } catch (Exception e) {
+            String message = ThisAnasayfaPage.txt_room_name.getText() + "_";
+            for (String mess : list_users.getSelectedValuesList()) {
+                message += mess + "-";
+            }
 
+            ThisAnasayfaPage.setVisible(false);
+            Thread.sleep(100);
+            Group d = new Group(message);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
         }
     }                                               
 
@@ -178,14 +180,15 @@ public class anasayfa extends javax.swing.JFrame {
     }                                        
 
     private void btn_connectActionPerformed(java.awt.event.ActionEvent evt) {                                            
-        // TODO add your handling code here:
 
         Client.Start("localhost", 7000);
         user1 = txt_name.getText();
-        //  txt_name.setText("Your Name :" + txt_name.getText());
         txt_name.setEnabled(false);
         btn_connect.setEnabled(false);
-
+        btn_create_room.setEnabled(true);
+        btn_private_mss.setEnabled(true);
+        lbl_room_name.setEnabled(true);
+        txt_room_name.setEnabled(true);
 
     }                                           
 
