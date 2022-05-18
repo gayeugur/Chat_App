@@ -5,7 +5,8 @@
  */
 package server;
 
-import message.Message;
+import application.Message;
+import application.anasayfa;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -17,7 +18,7 @@ import javax.swing.DefaultListModel;
 
 /**
  *
- * @author 
+ * @author gayeu
  */
 class ServerThread extends Thread {
 
@@ -25,12 +26,12 @@ class ServerThread extends Thread {
         //server kapanana kadar dinle
         while (!Server.serverSocket.isClosed()) {
             try {
-                Server.Display("Client Bekleniyor...");
+                System.out.println("Client Bekleniyor...");
                 // clienti bekleyen satır
                 //bir client gelene kadar bekler
                 Socket clientSocket = Server.serverSocket.accept();
                 //client gelirse bu satıra geçer
-                Server.Display("Client Geldi...");
+                System.out.println("Client Geldi...");
                 //gelen client soketinden bir sclient nesnesi oluştur
                 //bir adet id de kendimiz verdik
                 SClient nclient = new SClient(clientSocket, Server.IdClient);
@@ -48,6 +49,12 @@ class ServerThread extends Thread {
 }
 
 public class Server {
+
+    public static void main(String[] args) {
+        // TODO code application logic here
+        //server çalıştırılır
+        Server.Start(7000);
+    }
 
     //server soketi eklemeliyiz
     public static ServerSocket serverSocket;
@@ -71,10 +78,6 @@ public class Server {
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    public static void Display(String msg) {
-        System.out.println(msg);
     }
 
     // serverdan clientlara mesaj gönderme
@@ -207,32 +210,11 @@ public class Server {
                 userList.addElement(client.name);
             }
 
-            Message msg2 = new Message(Message.Message_Type.Connected);
+            Message msg2 = new Message(Message.Message_Type.UserList);
             msg2.content = userList;
 
             for (SClient c : Clients) {
                 Server.Send(c, msg2);
-            }
-        }
-    }
-
-    public static void BaglantiKur2(Message msg) throws InterruptedException {
-        //Grup kurmak isteyen clienta tüm çevrimiçi kullanicilarin listesini yollar
-        Thread.sleep(100);
-        if (Server.Clients.size() > 0) {
-            DefaultListModel userList = new DefaultListModel();
-            for (SClient client : Clients) {
-                userList.addElement(client.name);
-            }
-
-            Message msg2 = new Message(Message.Message_Type.grupUsers);
-            msg2.content = userList;
-
-            for (SClient c : Clients) {
-                if (c.name.equals(msg.content.toString())) {
-                    Server.Send(c, msg2);
-                    break;
-                }
             }
         }
     }
