@@ -3,22 +3,21 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package message;
+package application;
 
 /**
  *
- * @author 
+ * @author gayeu
  */
 public class Message implements java.io.Serializable {
 
-    //mesaj tipleri enum 
-    public static enum Message_Type {
-        Name, Connected, kisiBul, icerik, icerik2, durum, baglantiKopar, baglantiKopar2, grupUsers, grupKisiBul, icerikGrup, dosya1, dosya2
-    }
-    //mesajın tipi
     public Message_Type type;
-    //mesajın içeriği obje tipinde bunun nedeni istenilen tip içerik yüklenebilsin
     public Object content;
+
+    public static enum Message_Type {
+
+        UserName, UserList, ChatPrivate, PrivateFileSender, Mess, Back, groupUsers, GroupFileSender, File
+    }
 
     public Message(Message_Type t) {
         this.type = t;
