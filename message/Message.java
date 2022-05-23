@@ -16,7 +16,7 @@ public class Message implements java.io.Serializable {
 
     public static enum Message_Type {
 
-        UserName, UserList, ChatPrivate, PrivateFileSender, Mess, Back, groupUsers, GroupFileSender, File
+        UserName, UserList, ChatPrivate, PrivateFileSender, Mess, Back, groupUsers, GroupFileSender, File,RoomName,RoomNameList,BackGroup
     }
 
     public Message(Message_Type t) {
