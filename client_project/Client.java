@@ -9,6 +9,10 @@ package client;
  *
  * @author gayeu
  */
+import application.Group;
+import application.Message;
+import static application.Room.ThisSohbet;
+import application.anasayfa;
 import static client.Client.sInput;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,10 +25,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
-import application.Message;
-import static application.Room.ThisSohbet;
-import application.anasayfa;
-
 
 class Listen extends Thread {
 
@@ -53,10 +53,18 @@ class Listen extends Thread {
                         anasayfa.ThisAnasayfaPage.setVisible(true);
                         Thread.sleep(100);
                         break;
+                        
+                    case BackGroup:
+                        Group.ThisGrupSohbet.setVisible(false);
+                        anasayfa.ThisAnasayfaPage.setVisible(true);
+                        Thread.sleep(100);
+                        break;
+                        
 
                     case groupUsers:
                         application.anasayfa.ThisAnasayfaPage.setVisible(false);
-                        new application.Group(received.content.toString(), 1).setVisible(true);
+                        application.Group.ThisGrupSohbet.setVisible(false);
+                        new application.Group(received.content.toString(), 1).setVisible(true);                     
                         break;
 
                     case ChatPrivate:
@@ -65,6 +73,17 @@ class Listen extends Thread {
                         String kisi_ad = dizi[0];
                         Client.kisi_ad2 = dizi[1];
                         new application.Room().setVisible(true);
+                        break;
+                        
+                    case RoomName:
+                        System.out.println("received : " + received.content);
+                        application.anasayfa.roomName = received.content.toString();
+                        break;
+
+                    case RoomNameList:
+                        System.out.println("contectn   -->"+received.content);
+                        anasayfa.ThisAnasayfaPage.list_rooms.setModel((DefaultListModel) received.content);
+
                         break;
 
                     case GroupFileSender:
