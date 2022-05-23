@@ -21,19 +21,23 @@ public class anasayfa extends javax.swing.JFrame {
      */
     public static anasayfa ThisAnasayfaPage;
     public DefaultListModel users;
-    public static String user1, user2;
-
+    public static String user1, user2, roomName;
+    public static DefaultListModel rooms;
+    
     public anasayfa() {
         initComponents();
         ThisAnasayfaPage = this;
         users = new DefaultListModel();
+        rooms = new DefaultListModel();
         list_users.setModel(users);
+        list_rooms.setModel(rooms);
         users.addElement("---   Online Users   ---");
         btn_create_room.setEnabled(false);
         btn_private_mss.setEnabled(false);
         lbl_room_name.setEnabled(false);
         txt_room_name.setEnabled(false);
-
+        btn_join_room.setEnabled(false);
+        
     }
 
     /**
@@ -56,10 +60,13 @@ public class anasayfa extends javax.swing.JFrame {
         lbl_name = new javax.swing.JLabel();
         lbl_room_name = new javax.swing.JLabel();
         txt_room_name = new javax.swing.JTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        list_rooms = new javax.swing.JList();
+        btn_join_room = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
-        setMinimumSize(new java.awt.Dimension(500, 650));
+        setMinimumSize(new java.awt.Dimension(500, 700));
         getContentPane().setLayout(null);
 
         list_users.setBackground(new java.awt.Color(204, 204, 255));
@@ -75,7 +82,7 @@ public class anasayfa extends javax.swing.JFrame {
         jScrollPane1.setViewportView(list_users);
 
         getContentPane().add(jScrollPane1);
-        jScrollPane1.setBounds(10, 80, 430, 290);
+        jScrollPane1.setBounds(10, 80, 460, 290);
 
         btn_private_mss.setBackground(new java.awt.Color(204, 204, 255));
         btn_private_mss.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
@@ -86,7 +93,7 @@ public class anasayfa extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btn_private_mss);
-        btn_private_mss.setBounds(230, 380, 210, 60);
+        btn_private_mss.setBounds(240, 380, 230, 60);
 
         lbl_hesapadi2.setFont(new java.awt.Font("Tahoma", 3, 14)); // NOI18N
         lbl_hesapadi2.setForeground(new java.awt.Color(255, 255, 255));
@@ -106,7 +113,7 @@ public class anasayfa extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btn_create_room);
-        btn_create_room.setBounds(10, 380, 210, 60);
+        btn_create_room.setBounds(10, 380, 230, 60);
 
         txt_name.setFont(new java.awt.Font("Constantia", 1, 14)); // NOI18N
         txt_name.setForeground(new java.awt.Color(102, 102, 102));
@@ -128,7 +135,7 @@ public class anasayfa extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btn_connect);
-        btn_connect.setBounds(320, 30, 120, 40);
+        btn_connect.setBounds(320, 30, 150, 40);
 
         lbl_name.setForeground(new java.awt.Color(0, 51, 102));
         lbl_name.setText("Name:");
@@ -138,15 +145,29 @@ public class anasayfa extends javax.swing.JFrame {
         lbl_room_name.setForeground(new java.awt.Color(0, 51, 102));
         lbl_room_name.setText("Room Name:");
         getContentPane().add(lbl_room_name);
-        lbl_room_name.setBounds(10, 450, 100, 40);
+        lbl_room_name.setBounds(10, 450, 80, 40);
         getContentPane().add(txt_room_name);
-        txt_room_name.setBounds(110, 450, 250, 40);
+        txt_room_name.setBounds(90, 450, 250, 50);
+
+        jScrollPane2.setViewportView(list_rooms);
+
+        getContentPane().add(jScrollPane2);
+        jScrollPane2.setBounds(10, 510, 460, 100);
+
+        btn_join_room.setText("Join Room");
+        btn_join_room.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_join_roomActionPerformed(evt);
+            }
+        });
+        getContentPane().add(btn_join_room);
+        btn_join_room.setBounds(350, 450, 120, 50);
 
         pack();
     }// </editor-fold>                        
 
     private void btn_private_mssActionPerformed(java.awt.event.ActionEvent evt) {                                                
-
+        
         try {
             user2 = list_users.getSelectedValue();
             ThisAnasayfaPage.setVisible(false);
@@ -155,18 +176,21 @@ public class anasayfa extends javax.swing.JFrame {
         } catch (InterruptedException ex) {
             Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
 
     }                                               
 
     private void btn_create_roomActionPerformed(java.awt.event.ActionEvent evt) {                                                
-
+        
         try {
             String message = ThisAnasayfaPage.txt_room_name.getText() + "_";
             for (String mess : list_users.getSelectedValuesList()) {
                 message += mess + "-";
             }
-
+            roomName = txt_room_name.getText();
+            Message msg = new Message(Message.Message_Type.RoomName);
+            msg.content = application.anasayfa.ThisAnasayfaPage.txt_room_name.getText();
+            Client.Send(msg);
             ThisAnasayfaPage.setVisible(false);
             Thread.sleep(100);
             Group d = new Group(message);
@@ -180,7 +204,7 @@ public class anasayfa extends javax.swing.JFrame {
     }                                        
 
     private void btn_connectActionPerformed(java.awt.event.ActionEvent evt) {                                            
-
+        
         Client.Start("localhost", 7000);
         user1 = txt_name.getText();
         txt_name.setEnabled(false);
@@ -189,8 +213,26 @@ public class anasayfa extends javax.swing.JFrame {
         btn_private_mss.setEnabled(true);
         lbl_room_name.setEnabled(true);
         txt_room_name.setEnabled(true);
-
+        btn_join_room.setEnabled(true);
     }                                           
+
+    private void btn_join_roomActionPerformed(java.awt.event.ActionEvent evt) {                                              
+        // TODO add your handling code here:
+        
+        try {
+            String message = ThisAnasayfaPage.list_rooms.getSelectedValue().toString() + "_";
+          //  message += txt_name.getText() + "-";
+            for (String mess : list_users.getSelectedValuesList()) {
+                message += mess + "-";
+            }
+            
+            ThisAnasayfaPage.setVisible(false);
+            Thread.sleep(100);
+            Group d = new Group(message);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }                                             
 
     /**
      * @param args the command line arguments
@@ -230,15 +272,18 @@ public class anasayfa extends javax.swing.JFrame {
     // Variables declaration - do not modify                     
     public javax.swing.JButton btn_connect;
     private javax.swing.JButton btn_create_room;
+    private javax.swing.JButton btn_join_room;
     private javax.swing.JButton btn_private_mss;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lbl_hesapadi;
     private javax.swing.JLabel lbl_hesapadi2;
     private javax.swing.JLabel lbl_name;
     private javax.swing.JLabel lbl_room_name;
+    public static javax.swing.JList list_rooms;
     public javax.swing.JList<String> list_users;
     public static javax.swing.JTextField txt_name;
-    private javax.swing.JTextField txt_room_name;
+    public static javax.swing.JTextField txt_room_name;
     // End of variables declaration                   
 
 }
