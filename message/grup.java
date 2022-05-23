@@ -42,15 +42,14 @@ public class Group extends javax.swing.JFrame {
         initComponents();
         ThisGrupSohbet = this;
         grup_mesaj_akisi.setEditable(true);
-        //  ThisGrupSohbet.lbl_grupName.setText(anasayfa.groupName);
+
         Thread.sleep(500);
         String[] parts = s.split("_");
         grup_adi = parts[0];
         kisiler = parts[1];
         Thread.sleep(100);
 
-        ThisGrupSohbet.lbl_grupName.setText(grup_adi);
-
+        ThisGrupSohbet.lbl_grupName.setText("Grup Name: " + grup_adi);
         Message msg = new Message(Message.Message_Type.groupUsers);
         msg.content = grup_adi + "_" + kisiler;
 
@@ -68,7 +67,7 @@ public class Group extends javax.swing.JFrame {
         String[] parts3 = s.split("_");
         grup_adi = parts3[0];
         kisiler = parts3[1];
-        ThisGrupSohbet.lbl_grupName.setText(grup_adi);
+        ThisGrupSohbet.lbl_grupName.setText("Grup Name: " + grup_adi);
         Thread.sleep(100);
     }
 
@@ -215,9 +214,10 @@ public class Group extends javax.swing.JFrame {
         ThisGrupSohbet.setVisible(false);
         anasayfa.ThisAnasayfaPage.setVisible(true);
 
-        Message msg = new Message(Message.Message_Type.Back);
+        Message msg = new Message(Message.Message_Type.BackGroup);
         msg.content = lbl_grupName.getText();
         client.Client.Send(msg);
+        
     }                                        
 
     /**
