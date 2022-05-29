@@ -9,24 +9,28 @@ package client;
  *
  * @author gayeu
  */
+
 import application.Group;
 import application.Message;
 import static application.Room.ThisSohbet;
 import application.anasayfa;
+import static application.anasayfa.state;
 import static client.Client.sInput;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.JFileChooser;
 
 class Listen extends Thread {
+
+    OutputStream os;
+    String system = System.getProperty("user.home");
 
     public void run() {
         while (Client.socket.isConnected()) {
@@ -43,7 +47,6 @@ class Listen extends Thread {
 
                     case Mess:
                         String[] parts2 = received.content.toString().split("_");
-                        Thread.sleep(100);
                         application.Room.ThisSohbet.setVisible(true);
                         application.Room.ThisSohbet.list_mess.setText(parts2[1]);
                         break;
@@ -51,20 +54,20 @@ class Listen extends Thread {
                     case Back:
                         ThisSohbet.setVisible(false);
                         anasayfa.ThisAnasayfaPage.setVisible(true);
-                        Thread.sleep(100);
                         break;
-                        
+
                     case BackGroup:
                         Group.ThisGrupSohbet.setVisible(false);
                         anasayfa.ThisAnasayfaPage.setVisible(true);
-                        Thread.sleep(100);
                         break;
-                        
 
                     case groupUsers:
                         application.anasayfa.ThisAnasayfaPage.setVisible(false);
-                        application.Group.ThisGrupSohbet.setVisible(false);
-                        new application.Group(received.content.toString(), 1).setVisible(true);                     
+                        if (state == true) {
+                            application.Group.ThisGrupSohbet.setVisible(false);
+                        }
+
+                        new application.Group(received.content.toString(), 1).setVisible(true);
                         break;
 
                     case ChatPrivate:
@@ -74,14 +77,12 @@ class Listen extends Thread {
                         Client.kisi_ad2 = dizi[1];
                         new application.Room().setVisible(true);
                         break;
-                        
+
                     case RoomName:
-                        System.out.println("received : " + received.content);
                         application.anasayfa.roomName = received.content.toString();
                         break;
 
                     case RoomNameList:
-                        System.out.println("contectn   -->"+received.content);
                         anasayfa.ThisAnasayfaPage.list_rooms.setModel((DefaultListModel) received.content);
 
                         break;
@@ -90,24 +91,13 @@ class Listen extends Thread {
                         application.Group.ThisGrupSohbet.grup_mesaj_akisi.setText(received.content.toString());
                         break;
 
-                    case PrivateFileSender:
-                        application.Room.ThisSohbet.list_mess.setText(received.content.toString());
+                    case SendFile:
+                        File receivedFile = new File(system + "/Desktop/" + received.content);
+                        os = new FileOutputStream(receivedFile);
+                        byte content[] = (byte[]) received.fileList;
+                        os.write(content);
                         break;
 
-                    case File:
-                        String[] parts4 = received.content.toString().split("_");
-                        String fileName = parts4[0];
-                        String Content = parts4[1];
-                        byte[] content_decode = Base64.getDecoder().decode(Content);
-                        JFileChooser ch = new JFileChooser();
-                        ch.setCurrentDirectory(new File("C:\\Users\\gayeu\\Desktop"));
-                        int c = ch.showSaveDialog(null);
-                        if (c == JFileChooser.APPROVE_OPTION) {
-                            FileOutputStream out = new FileOutputStream(ch.getSelectedFile());
-                            out.write(content_decode);
-                            out.close();
-                        }
-                        break;
                 }
             } catch (IOException ex) {
                 Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -131,7 +121,6 @@ public class Client {
     public static void Start(String ip, int port) {
         try {
             Client.socket = new Socket(ip, port);
-            System.out.println("Coonect to server");
             Client.sInput = new ObjectInputStream(Client.socket.getInputStream());
             Client.sOutput = new ObjectOutputStream(Client.socket.getOutputStream());
             Client.listenMe = new Listen();
