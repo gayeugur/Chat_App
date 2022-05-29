@@ -1,5 +1,5 @@
  /*
- * To change this license header, choose License Headers in Project Properties.
+ * To change this license header, choosbbe License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -19,11 +19,12 @@ public class anasayfa extends javax.swing.JFrame {
     /**
      * Creates new form anasayfa
      */
+    public static boolean state; //daha önceden grup açıldı mı 
     public static anasayfa ThisAnasayfaPage;
     public DefaultListModel users;
     public static String user1, user2, roomName;
     public static DefaultListModel rooms;
-    
+
     public anasayfa() {
         initComponents();
         ThisAnasayfaPage = this;
@@ -37,7 +38,7 @@ public class anasayfa extends javax.swing.JFrame {
         lbl_room_name.setEnabled(false);
         txt_room_name.setEnabled(false);
         btn_join_room.setEnabled(false);
-        
+
     }
 
     /**
@@ -137,23 +138,26 @@ public class anasayfa extends javax.swing.JFrame {
         getContentPane().add(btn_connect);
         btn_connect.setBounds(320, 30, 150, 40);
 
-        lbl_name.setForeground(new java.awt.Color(0, 51, 102));
+        lbl_name.setForeground(new java.awt.Color(153, 153, 255));
         lbl_name.setText("Name:");
         getContentPane().add(lbl_name);
         lbl_name.setBounds(10, 30, 50, 40);
 
-        lbl_room_name.setForeground(new java.awt.Color(0, 51, 102));
+        lbl_room_name.setForeground(new java.awt.Color(153, 153, 255));
         lbl_room_name.setText("Room Name:");
         getContentPane().add(lbl_room_name);
-        lbl_room_name.setBounds(10, 450, 80, 40);
+        lbl_room_name.setBounds(10, 460, 80, 40);
         getContentPane().add(txt_room_name);
         txt_room_name.setBounds(90, 450, 250, 50);
 
+        list_rooms.setBackground(new java.awt.Color(204, 204, 255));
         jScrollPane2.setViewportView(list_rooms);
 
         getContentPane().add(jScrollPane2);
         jScrollPane2.setBounds(10, 510, 460, 100);
 
+        btn_join_room.setBackground(new java.awt.Color(204, 204, 255));
+        btn_join_room.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btn_join_room.setText("Join Room");
         btn_join_room.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -167,7 +171,7 @@ public class anasayfa extends javax.swing.JFrame {
     }// </editor-fold>                        
 
     private void btn_private_mssActionPerformed(java.awt.event.ActionEvent evt) {                                                
-        
+
         try {
             user2 = list_users.getSelectedValue();
             ThisAnasayfaPage.setVisible(false);
@@ -176,12 +180,12 @@ public class anasayfa extends javax.swing.JFrame {
         } catch (InterruptedException ex) {
             Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
 
     }                                               
 
     private void btn_create_roomActionPerformed(java.awt.event.ActionEvent evt) {                                                
-        
+        state = true;
         try {
             String message = ThisAnasayfaPage.txt_room_name.getText() + "_";
             for (String mess : list_users.getSelectedValuesList()) {
@@ -192,7 +196,6 @@ public class anasayfa extends javax.swing.JFrame {
             msg.content = application.anasayfa.ThisAnasayfaPage.txt_room_name.getText();
             Client.Send(msg);
             ThisAnasayfaPage.setVisible(false);
-            Thread.sleep(100);
             Group d = new Group(message);
         } catch (InterruptedException ex) {
             Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
@@ -204,7 +207,7 @@ public class anasayfa extends javax.swing.JFrame {
     }                                        
 
     private void btn_connectActionPerformed(java.awt.event.ActionEvent evt) {                                            
-        
+
         Client.Start("localhost", 7000);
         user1 = txt_name.getText();
         txt_name.setEnabled(false);
@@ -217,17 +220,14 @@ public class anasayfa extends javax.swing.JFrame {
     }                                           
 
     private void btn_join_roomActionPerformed(java.awt.event.ActionEvent evt) {                                              
-        // TODO add your handling code here:
-        
+
         try {
             String message = ThisAnasayfaPage.list_rooms.getSelectedValue().toString() + "_";
-          //  message += txt_name.getText() + "-";
             for (String mess : list_users.getSelectedValuesList()) {
                 message += mess + "-";
             }
-            
+
             ThisAnasayfaPage.setVisible(false);
-            Thread.sleep(100);
             Group d = new Group(message);
         } catch (InterruptedException ex) {
             Logger.getLogger(anasayfa.class.getName()).log(Level.SEVERE, null, ex);
