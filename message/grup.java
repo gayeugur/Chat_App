@@ -5,13 +5,10 @@
  */
 package application;
 
+import client.Client;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -30,12 +27,12 @@ public class Group extends javax.swing.JFrame {
     public DefaultListModel kisilerListesi;
     public static String grup_adi;
     public static String kisiler;
-    public static File fileToSend = null;
+    public File fileSelect = null;
+    public JFileChooser fileChooser = new JFileChooser();
 
     public Group() {
         initComponents();
         ThisGrupSohbet = this;
-        //  lbl_grupName.setText(anasayfa.groupName);
     }
 
     public Group(String s) throws InterruptedException {
@@ -96,8 +93,10 @@ public class Group extends javax.swing.JFrame {
         grup_mesaj_kutusu.setFont(new java.awt.Font("Courier New", 0, 14)); // NOI18N
         grup_mesaj_kutusu.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(51, 153, 255)));
         getContentPane().add(grup_mesaj_kutusu);
-        grup_mesaj_kutusu.setBounds(20, 410, 320, 60);
+        grup_mesaj_kutusu.setBounds(10, 420, 310, 60);
 
+        btn_mesaj_gonder_grup.setBackground(new java.awt.Color(204, 204, 255));
+        btn_mesaj_gonder_grup.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btn_mesaj_gonder_grup.setText("Send");
         btn_mesaj_gonder_grup.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -105,26 +104,32 @@ public class Group extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btn_mesaj_gonder_grup);
-        btn_mesaj_gonder_grup.setBounds(20, 480, 430, 60);
+        btn_mesaj_gonder_grup.setBounds(10, 490, 410, 60);
 
-        btn_dosya.setText("Choose File");
+        btn_dosya.setBackground(new java.awt.Color(204, 204, 255));
+        btn_dosya.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        btn_dosya.setText("File");
         btn_dosya.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_dosyaActionPerformed(evt);
             }
         });
         getContentPane().add(btn_dosya);
-        btn_dosya.setBounds(350, 410, 100, 60);
+        btn_dosya.setBounds(330, 420, 90, 60);
 
+        grup_mesaj_akisi.setBackground(new java.awt.Color(204, 204, 255));
         grup_mesaj_akisi.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 102, 255)));
-        grup_mesaj_akisi.setFont(new java.awt.Font("Courier New", 0, 14)); // NOI18N
+        grup_mesaj_akisi.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        grup_mesaj_akisi.setSelectedTextColor(new java.awt.Color(255, 153, 153));
         jScrollPane2.setViewportView(grup_mesaj_akisi);
 
         getContentPane().add(jScrollPane2);
-        jScrollPane2.setBounds(20, 60, 430, 340);
+        jScrollPane2.setBounds(10, 70, 410, 340);
         getContentPane().add(lbl_grupName);
-        lbl_grupName.setBounds(120, 10, 330, 40);
+        lbl_grupName.setBounds(110, 20, 290, 40);
 
+        btn_back.setBackground(new java.awt.Color(204, 204, 255));
+        btn_back.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
         btn_back.setText("Back");
         btn_back.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -132,81 +137,61 @@ public class Group extends javax.swing.JFrame {
             }
         });
         getContentPane().add(btn_back);
-        btn_back.setBounds(30, 10, 80, 40);
+        btn_back.setBounds(10, 10, 80, 50);
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/image.jpg"))); // NOI18N
+        jLabel1.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        jLabel1.setDebugGraphicsOptions(javax.swing.DebugGraphics.NONE_OPTION);
+        jLabel1.setMaximumSize(new java.awt.Dimension(1000, 5000));
+        jLabel1.setPreferredSize(new java.awt.Dimension(1000, 2000));
         getContentPane().add(jLabel1);
-        jLabel1.setBounds(0, 0, 480, 550);
+        jLabel1.setBounds(0, 0, 1000, 590);
 
         pack();
     }// </editor-fold>                        
 
     private void btn_mesaj_gonder_grupActionPerformed(java.awt.event.ActionEvent evt) {                                                      
 
-        if (fileToSend == null) {
+        if (fileSelect == null) {
 
-            grup_mesaj_akisi.setText(grup_mesaj_akisi.getText() + application.anasayfa.user1 + ":\n" + grup_mesaj_kutusu.getText().toString() + "\n");
+            grup_mesaj_akisi.setText(grup_mesaj_akisi.getText() + application.anasayfa.user1 + ": " + grup_mesaj_kutusu.getText().toString() + "\n");
             grup_mesaj_kutusu.setText("");
 
             Message msg = new Message(Message.Message_Type.GroupFileSender);
             msg.content = kisiler + "_" + grup_mesaj_akisi.getText();
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
-            }
             client.Client.Send(msg);
-            grup_mesaj_kutusu.setText("");
-            //dosya gonderme durumu varsa
-        } else if (fileToSend != null) {
+
+        } else if (fileSelect != null) {
             try {
-                grup_mesaj_akisi.setText(grup_mesaj_akisi.getText() + application.anasayfa.user1 + ":\n" + "--- Dosya : " + fileToSend.getName() + " ---\n" + grup_mesaj_kutusu.getText() + "\n");
-                grup_mesaj_kutusu.setText("");
+                byte file[] = new byte[(int) fileSelect.length()];
+                grup_mesaj_akisi.setText(grup_mesaj_akisi.getText() + application.anasayfa.user1 + ":" + fileSelect.getName() + " \n");
+
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(fileSelect));
+                bis.read(file, 0, file.length);
+
+                Message message = new Message(Message.Message_Type.SendFile);
+                message.fileList = file;
+                message.content = fileSelect.getName();
+                Client.Send(message);
 
                 Message msg = new Message(Message.Message_Type.GroupFileSender);
-                msg.content = kisiler + "_" + grup_mesaj_akisi.getText();
-                Thread.sleep(100);
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                msg.content = kisiler + "_" + grup_mesaj_akisi.getText() + "\n";
                 client.Client.Send(msg);
 
-                FileInputStream fileInputStream = new FileInputStream(fileToSend);
-                String fileName = fileToSend.getName();
-                byte[] fileContentBytes = new byte[fileInputStream.available()];
-                fileInputStream.read(fileContentBytes);
-                fileInputStream.close();
-                fileToSend = null;
-
-                String fileContentBytes_string = Base64.getEncoder().encodeToString(fileContentBytes);
-                Message msg4 = new Message(Message.Message_Type.File);
-                msg4.content = kisiler + "&" + fileName + "_" + fileContentBytes_string;
-                client.Client.Send(msg4);
-                Thread.sleep(300);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Group.class.getName()).log(Level.SEVERE, null, ex);
+                fileSelect = null;
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(rootPane, "Error");
             }
+
         }
     }                                                     
 
     private void btn_dosyaActionPerformed(java.awt.event.ActionEvent evt) {                                          
         // TODO add your handling code here:
         //dosya cubugunu acar ve gondermek istenilen dosyayi secmeye yarar
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle("Choose the file");
-        int choose_File = fileChooser.showOpenDialog(this);
-
-        if (choose_File == JFileChooser.APPROVE_OPTION) {
-            fileToSend = fileChooser.getSelectedFile();
-
-        } else {
-            JOptionPane.showMessageDialog(fileChooser, "Try again");
+        int selection = fileChooser.showOpenDialog(this);
+        if (selection == JFileChooser.APPROVE_OPTION) {
+            fileSelect = fileChooser.getSelectedFile();
         }
     }                                         
 
@@ -215,9 +200,9 @@ public class Group extends javax.swing.JFrame {
         anasayfa.ThisAnasayfaPage.setVisible(true);
 
         Message msg = new Message(Message.Message_Type.BackGroup);
-        msg.content = lbl_grupName.getText();
+        msg.content = kisiler;
         client.Client.Send(msg);
-        
+
     }                                        
 
     /**
