@@ -22,14 +22,10 @@ class ServerThread extends Thread {
     public void run() {
         while (!Server.serverSocket.isClosed()) {
             try {
-                System.out.println("Client Bekleniyor");
                 Socket clientSocket = Server.serverSocket.accept();
-                System.out.println("Client Geldi");
                 SClient nclient = new SClient(clientSocket);
                 Server.Clients.add(nclient);
-                System.out.println("Client eklendi");
                 nclient.listenThread.start();
-
             } catch (IOException ex) {
                 Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
             }
