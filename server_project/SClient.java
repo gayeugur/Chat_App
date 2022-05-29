@@ -23,20 +23,19 @@ public class SClient {
 
     public String name = "";
     public String roomName = "";
-    Socket soket;
+    Socket socket;
     ObjectOutputStream sOutput;
     ObjectInputStream sInput;
     Listen listenThread;
 
-    public SClient(Socket gelenSoket) {
-        this.soket = gelenSoket;
+    public SClient(Socket paramSocket) {
+        this.socket = paramSocket;
         try {
-            this.sOutput = new ObjectOutputStream(this.soket.getOutputStream());
-            this.sInput = new ObjectInputStream(this.soket.getInputStream());
+            this.sOutput = new ObjectOutputStream(this.socket.getOutputStream());
+            this.sInput = new ObjectInputStream(this.socket.getInputStream());
         } catch (IOException ex) {
             Logger.getLogger(SClient.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //thread nesneleri
         this.listenThread = new Listen(this);
     }
 
@@ -53,14 +52,14 @@ public class SClient {
         SClient TheClient;
         Message msg;
         DefaultListModel userList = new DefaultListModel();
-         DefaultListModel roomList = new DefaultListModel();
+        DefaultListModel roomList = new DefaultListModel();
 
         Listen(SClient TheClient) {
             this.TheClient = TheClient;
         }
 
         public void run() {
-            while (TheClient.soket.isConnected()) {
+            while (TheClient.socket.isConnected()) {
                 try {
                     Message received = (Message) (TheClient.sInput.readObject());
                     String parts[] = null;
@@ -103,15 +102,13 @@ public class SClient {
                                     Server.Send(ccp, received);
                                 }
                             }
-
                             break;
 
                         case groupUsers:
-
                             parts = received.content.toString().split("_");
-                            mess_one = parts[0];
-                            mess_two = parts[1];
-                            String[] parts2 = mess_two.split("-");
+                            mess_one = parts[0]; //mesaj
+                            mess_two = parts[1]; //kisiler
+                            String[] parts2 = mess_two.split("-"); //kisiler bölme
                             received.content = mess_one + "_" + mess_two;
 
                             for (SClient c : Clients) {
@@ -121,53 +118,45 @@ public class SClient {
                                     }
                                 }
                             }
-
                             break;
 
                         case Mess:
-                            //karsi clienta mesaji iletir
-                            //Server.KarsiyaGonder(received);
-
                             parts = received.content.toString().split("_");
-                            mess_one = parts[0];
-                            mess_two = parts[1];
+                            mess_one = parts[0]; //kisi
+                            mess_two = parts[1]; //mesaj
                             received.content = mess_one + "_" + mess_two;
 
-                            //karsiki clienta mesaj icerigini gondermek icin 
                             for (SClient c : Clients) {
                                 if (c.name.equals(mess_one)) {
                                     Server.Send(c, received);
                                 }
                             }
-
                             break;
 
                         case Back:
-
                             for (SClient k : Server.Clients) {
                                 if (k.name.equals(received.content.toString())) {
                                     Server.Send(k, received);
                                 }
                             }
-
                             break;
-                        
+
                         case BackGroup:
                             for (SClient k : Server.Clients) {
-                                if (k.name.equals(received.content.toString())) {
-                                    Server.Send(k, received);
+                                parts = received.content.toString().split("-");
+                                int num = parts.length;
+                                for (int i = 0; i < num; i++) {
+                                    if (k.name.equals(parts[i])) {
+                                        Server.Send(k, received);
+                                    }
                                 }
                             }
-
                             break;
-                            
-                            
-                        case GroupFileSender:
-                            //Server.tumUyelereGonder(received);
 
+                        case GroupFileSender:
                             parts = received.content.toString().split("_");
-                            mess_one = parts[0];
-                            mess_two = parts[1];
+                            mess_one = parts[0]; //kisiler
+                            mess_two = parts[1]; //mess
                             received.content = mess_two;
                             String[] mess_array = mess_one.split("-");
                             //tum grup uyelerine mesaj icerigini gonderir
@@ -178,40 +167,12 @@ public class SClient {
                                     }
                                 }
                             }
-
                             break;
 
-                        case PrivateFileSender:
-                            parts = received.content.toString().split("_");
-                            mess_one = parts[0];
-                            mess_two = parts[1];
-                            received.content = mess_two;
-                            String[] mess_array2 = mess_one.split("-");
-
-                            for (SClient personC : Clients) {
-                                for (String messC : mess_array2) {
-                                    if (personC.name.equals(messC)) {
-                                        Server.Send(personC, received);
-                                    }
-                                }
-                            }
+                        case SendFile:
+                            Server.Send(this.TheClient, received);
                             break;
 
-                        case File:
-                            parts = received.content.toString().split("&");
-                            mess_one = parts[0];
-                            mess_two = parts[1];
-                            received.content = mess_two;
-                            String[] mess_array3 = mess_one.split("-");
-
-                            for (SClient sc : Clients) {
-                                for (String p : mess_array3) {
-                                    if (sc.name.equals(p)) {
-                                        Server.Send(sc, received);
-                                    }
-                                }
-                            }
-                            break;
                     }
                 } catch (IOException ex) {
                     Logger.getLogger(SClient.class.getName()).log(Level.SEVERE, null, ex);
